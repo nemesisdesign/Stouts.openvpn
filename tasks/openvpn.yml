@@ -10,5 +10,9 @@
 
 - include: configure.yml
 
+- name: reload systemd
+  command: systemctl daemon-reload
+  when: ansible_os_family == 'Debian' and ansible_distribution_release == 'jessie'
+
 - name: Ensure OpenVPN is started
   service: name=openvpn state=started enabled=yes
