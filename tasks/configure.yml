@@ -56,11 +56,17 @@
     dest: "{{openvpn_etcdir}}/auth-client.sh"
     mode: 0755
   when: openvpn_simple_auth and openvpn_simple_auth_password
+  register: result
   notify: [openvpn restart]
 
 - name: Configure server
   template: src=server.conf.j2 dest={{openvpn_etcdir}}/server.conf
+  register: result
   notify: [openvpn restart]
 
 - name: Ensure openvpn key dir has the right permission
   file: path={{openvpn_keydir}} state=directory mode=0700 owner={{openvpn_user}}
+
+- name: reload systemd
+  command: systemctl daemon-reload
+  when: result|changed and ansible_os_family == 'Debian' and ansible_distribution_release == 'jessie'
